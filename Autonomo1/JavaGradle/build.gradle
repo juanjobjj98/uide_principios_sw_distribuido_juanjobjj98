@@ -1,0 +1,82 @@
+// set as java application
+apply plugin: 'application'
+
+// define main class
+// Modificación: la propiedad obsoleta mainClassName se reemplaza por
+// application { mainClass }, porque Gradle 9 eliminó la sintaxis original
+application {
+  mainClass = 'Multiply'
+}
+
+// task which will run Main with default parameters,
+// can be overwritten with: gradle runApp --args '3 4'
+task runApp(type: JavaExec) {
+  group = 'Multiply tasks'
+  description = 'Tasks which runs Multiply with default parameters'
+
+  classpath = sourceSets.main.runtimeClasspath
+
+  mainClass = 'Multiply'
+
+  // default arguments if non are given
+  args '1'
+  args '2'
+}
+
+// task which will run Main with default parameters,
+// but also accepts new parameter this time with given names
+// Example: gradle runAppAgain -Pnum1=9 -Pnum2=10
+// Example2 (this will make Gradle run more quietly in the console):
+//   gradle runAppAgain -Pnum1=9 -Pnum2=10 -q --console=plain
+task runAppAgain(type: JavaExec) {
+  group = 'Multiply tasks'
+  description = 'Tasks which runs Multiply with default parameters or given values'
+
+  classpath = sourceSets.main.runtimeClasspath
+
+  mainClass = 'Multiply'
+
+  // Try (resuelto): valores por defecto cuando no se envía ningún parámetro
+  // o solo uno de ellos (num1 = 1 y num2 = 2, los mismos de runApp)
+  def num1 = project.findProperty('num1') ?: '1'
+  def num2 = project.findProperty('num2') ?: '2'
+  args(num1, num2)
+}
+
+// task that runs the Fraction Main which does not use arguments: gradle runFraction
+task runFraction(type: JavaExec) {
+  group = 'Fraction Tasks'
+  description = 'Tasks which runs Fraction with no arguments'
+
+  classpath = sourceSets.main.runtimeClasspath
+
+  mainClass = 'Fraction'
+}
+
+// Try (resuelto):
+// 1. Fraction.main ahora acepta 2 argumentos (numerador y denominador)
+// 2. Nueva tarea runFrac: se invoca como gradle runFrac -Pdenom=4 -Pnum=3
+//    o gradle runFrac -Pnum=3 -Pdenom=4 (el orden no importa porque son
+//    propiedades con nombre) y también funciona con 1 o 0 argumentos
+task runFrac(type: JavaExec) {
+  group = 'Fraction Tasks'
+  description = 'Runs Fraction with -Pnum and -Pdenom (defaults: num = 1, denom = 3)'
+
+  classpath = sourceSets.main.runtimeClasspath
+
+  mainClass = 'Fraction'
+
+  def num = project.findProperty('num') ?: '1'
+  def denom = project.findProperty('denom') ?: '3'
+  args(num, denom)
+}
+
+// Example how you can add that libraries can be pulled from mavenCentral()
+// repositories {
+//   mavenCentral()
+// }
+
+// Setting dependencies, e.g. when you import JSON in your Java files
+// dependencies{
+//   implementation 'org.json:json:20171018'
+// }
